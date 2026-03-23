@@ -5,3 +5,210 @@ airflow: https://chatgpt.com/share/69a89245-8344-8000-9d43-9d827a146c8b
 
 
 https://www.kimi.com/share/19d16686-46e2-86da-8000-0000a7a5de8e coding+maths
+| #  | Question                                                                                  | Key Concepts to Cover                                        |
+| -- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| 1  | Explain the difference between process and thread. When would you use one over the other? | Address space sharing, TCB vs PCB, kernel vs user threads    |
+| 2  | What are the states of a process? Draw the state diagram.                                 | New, Ready, Running, Blocked, Terminated + transitions       |
+| 3  | Explain context switch. What exactly is saved and restored?                               | PC, SP, registers, page table base, FPU state, cache flush   |
+| 4  | What is a zombie process? How is it created? How to prevent it?                           | `wait()` system call, init process reaping, SIGCHLD handling |
+| 5  | What is an orphan process? Who adopts it?                                                 | init/systemd (PID 1), reparenting mechanism                  |
+| 6  | Compare FCFS, SJF, Round Robin, Priority Scheduling with examples.                        | Convoy effect, starvation, aging, time quantum selection     |
+| 7  | How does Linux O(1) scheduler work? What is CFS?                                          | Red-black tree, vruntime, O(log n) vs O(1)                   |
+| 8  | What is the difference between preemptive and non-preemptive scheduling?                  | Kernel preemption points, real-time requirements             |
+| 9  | Explain the thundering herd problem. How to solve it?                                     | `accept()` in multi-process servers, SO\_REUSEPORT, epoll    |
+| 10 | What is a signal? How are signals handled in Linux?                                       | Signal table, handler registration, masking, reentrancy      |
+
+
+| #  | Question                                                                           | Key Concepts to Cover                                                                                |
+| -- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| 11 | **Who invokes the scheduler?** Deep dive into scheduler invocation mechanisms.     | Timer interrupt, `schedule()` call, `TIF_NEED_RESCHED` flag, voluntary vs involuntary context switch |
+| 12 | **Does OS need synchronization support for itself?** Explain with examples.        | Kernel preemption, spinlocks vs mutexes, `preempt_disable()`, interrupt context                      |
+| 13 | How does Linux handle scheduler scalability on 128+ core systems?                  | Per-CPU runqueues, NUMA-aware scheduling, `sched_domain` hierarchy                                   |
+| 14 | Explain the Completely Fair Scheduler (CFS) in detail. How is vruntime calculated? | `vruntime = actual_runtime * NICE_0_LOAD / weight`, red-black tree, min\_vruntime                    |
+| 15 | What is the difference between SCHED\_FIFO, SCHED\_RR, and SCHED\_OTHER?           | Real-time priorities (1-99), static vs dynamic priorities, priority inversion                        |
+| 16 | How does group scheduling (cgroups) work? Why is it important for containers?      | CPU shares, CPU quota/period, throttling, fair group scheduling                                      |
+| 17 | Explain the priority inversion problem. Solutions?                                 | Priority inheritance protocol, priority ceiling protocol, Mars Pathfinder example                    |
+| 18 | What is a futex? How does it improve performance over traditional semaphores?      | Fast userspace mutex, syscall only on contention, `FUTEX_WAIT`/`FUTEX_WAKE`                          |
+| 19 | How does `fork()` work? What is copy-on-write?                                     | Page table copying, reference counting, COW fault handler, `clone()` flags                           |
+| 20 | Explain `exec()` family. What happens to file descriptors?                         | `FD_CLOEXEC`, interpreter scripts (`#!`), memory unmapping, argument passing                         |
+
+
+MEMORY MANAGEMENT:
+| #  | Question                                                                                 | Key Concepts to Cover                                      |
+| -- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| 21 | What is paging? Why do we need it?                                                       | Fragmentation, virtual memory, protection, sharing         |
+| 22 | What is the difference between internal and external fragmentation?                      | Fixed vs variable size allocation, compaction              |
+| 23 | Explain the page table structure. What is the TLB?                                       | Page table entry fields (P, R/W, U/S, A, D), TLB as cache  |
+| 24 | What is demand paging? How does it work?                                                 | Page fault handler, backing store, pure demand paging      |
+| 25 | What is thrashing? How to detect and prevent it?                                         | Working set model, page fault frequency, WSClock algorithm |
+| 26 | Explain page replacement algorithms: FIFO, LRU, Optimal, Clock.                          | Belady's anomaly, stack property, implementation cost      |
+| 27 | What is the working set model? How is working set size determined?                       | Delta parameter, thrashing prevention                      |
+| 28 | What is segmentation? Why do modern OSes use paging instead?                             | External fragmentation, x86 segmentation history           |
+| 29 | What is virtual memory? How does it enable running programs larger than physical memory? | Address space abstraction, swap space, page fault          |
+| 30 | Explain the difference between write-through and write-back caches.                      | Consistency vs performance, dirty bit handling             |
+
+| #  | Question                                                                                            | Key Concepts to Cover                                                        |
+| -- | --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| 31 | **Array address is? Find page ID from the above address?**                                          | Virtual address translation, VPN extraction, bit masking                     |
+| 32 | **Where is page table stored and how to access it?**                                                | Physical memory, CR3 register, multi-level page tables, page table walker    |
+| 33 | **What is the use of PT if we are accessing memory so many times?**                                 | Indirection benefits: protection, sharing, COW, virtualization               |
+| 34 | Explain 4-level page table in x86-64. Calculate memory overhead.                                    | PGD, PUD, PMD, PTE, 512 entries × 8 bytes × 4 levels = 16KB max              |
+| 35 | **Discussion on TLB and physical caches?**                                                          | TLB as address translation cache, L1/L2/L3 as data cache, hierarchy          |
+| 36 | **PIVT/VIPT - which is suitable?**                                                                  | VIPT for L1 (parallel lookup), PIPT for L2/L3 (no aliasing), constraints     |
+| 37 | **Adding TLB's to pipeline, what is effect? i-cache & d-cache implications?**                       | Pipeline stages, ITLB vs DTLB, parallel lookup, miss penalties               |
+| 38 | **Suppose after adding TLB no effect in perf only number of stage increases? Why we need it then?** | Security (ASLR, KPTI), virtualization, multiprogramming, efficiency          |
+| 39 | What is huge page (hugeTLB)? Why is it important for databases?                                     | 2MB/1GB pages, reduced TLB misses, Transparent Huge Pages (THP)              |
+| 40 | Explain the page cache (buffer cache) in Linux. How does it interact with the page table?           | `struct address_space`, radix tree, page cache vs buffer cache               |
+| 41 | What is mmap()? How does it work? Compare with read/write.                                          | File-backed vs anonymous, `MAP_SHARED` vs `MAP_PRIVATE`, page fault handling |
+| 42 | How does Linux handle page faults? Walk through the complete flow.                                  | `do_page_fault()`, VMA lookup, allocation, COW handling, swapin              |
+| 43 | What is swap space? How is swap organized?                                                          | Swap partition vs file, swap cache, LRU-like eviction                        |
+| 44 | Explain the OOM killer. How does it choose which process to kill?                                   | `oom_score`, `oom_score_adj`, heuristics (memory usage, runtime, niceness)   |
+| 45 | What is memory compaction? Why is it needed?                                                        | External fragmentation in buddy allocator, `COMPACTION`                      |
+| 46 | How does the slab allocator work? Why is it better than buddy for small objects?                    | Object caching, constructor/destructor, `kmem_cache`, reducing fragmentation |
+| 47 | What is the difference between kmalloc and vmalloc?                                                 | Physically contiguous vs virtually contiguous, page table overhead           |
+| 48 | Explain KSM (Kernel Samepage Merging). Use case?                                                    | Memory deduplication for VMs/containers, `madvise(MADV_MERGEABLE)`           |
+| 49 | How does NUMA-aware memory allocation work?                                                         | `numa_node_id()`, local vs remote memory, `mbind()`, `move_pages()`          |
+| 50 | What is memory hotplug? How does Linux support adding/removing memory at runtime?                   | `memoryXXX/` sysfs, sparsemem, memory sections                               |
+
+
+SYNCHRONIZATION & CONCURRENCY
+| #  | Question                                                               | Key Concepts to Cover                                           |
+| -- | ---------------------------------------------------------------------- | --------------------------------------------------------------- |
+| 51 | What is a race condition? Give an example.                             | Shared variable increment, check-then-act, lost update          |
+| 52 | What is a critical section? What are the requirements for a solution?  | Mutual exclusion, progress, bounded waiting                     |
+| 53 | Explain Peterson's algorithm. Does it work on modern CPUs?             | Software solution, memory reordering, compiler barriers         |
+| 54 | What is a semaphore? Difference between binary and counting semaphore? | `wait()`/`signal()`, initialization, resource counting          |
+| 55 | What is a mutex? Difference from semaphore?                            | Ownership, priority inheritance, recursive locks                |
+| 56 | What is a spinlock? When to use it vs mutex?                           | Busy waiting, short critical sections, interrupt context        |
+| 57 | What is a condition variable? How does it work with mutex?             | `wait()`/`signal()`/`broadcast()`, Mesa vs Hoare semantics      |
+| 58 | What is deadlock? Four necessary conditions?                           | Mutual exclusion, hold and wait, no preemption, circular wait   |
+| 59 | How to prevent deadlock? Avoidance vs detection?                       | Banker's algorithm, resource ordering, timeout, cycle detection |
+| 60 | What is the readers-writers problem? Solutions?                        | Reader preference, writer preference, fair solution             |
+Does OS need support for sync for itself? Internal OS synchronization needs.	Kernel preemption, spin_lock_irqsave(), interrupt handlers, per-CPU variables
+62	What is RCU (Read-Copy-Update)? When is it used?	Lock-free reads, grace period, synchronize_rcu(), quiescent state
+63	Explain seqlocks. Use case?	write_seqlock(), read_seqbegin()/read_seqretry(), jiffies, wall time
+64	What is lock-free programming? Compare with wait-free.	CAS loops, ABA problem, hazard pointers, obstruction-free
+65	How does the Linux kernel implement per-CPU variables?	
+
+ VIRTUALIZATION & CONTAINERS
+
+| #   | Question                                                      | Key Concepts to Cover                            |
+| --- | ------------------------------------------------------------- | ------------------------------------------------ |
+| 101 | What is virtualization? Types: full, para, hardware-assisted? | Trap-and-emulate, hypercalls, Intel VT-x/AMD-V   |
+| 102 | What is a hypervisor? Type 1 vs Type 2?                       | Bare-metal vs hosted, Xen vs KVM vs VMware       |
+| 103 | How does KVM work? What is QEMU's role?                       | `/dev/kvm`, VMX root/non-root, device emulation  |
+| 104 | What are containers? How do they differ from VMs?             | Shared kernel, namespaces, cgroups, image layers |
+| 105 | What are Linux namespaces? Name them.                         | PID, NET, MNT, UTS, IPC, USER, CGROUP, TIME      |
+| 106 | What are cgroups? What resources can they control?            | CPU, memory, blkio, pids, devices, freezer       |
+| 107 | What is a union file system? (OverlayFS, AUFS)                | Layered filesystem, copy-on-write, image layers  |
+| 108 | What is the difference between Docker and containerd?         | High-level vs runtime, CRI, shim                 |
+| 109 | What is a pod in Kubernetes? Why share namespaces?            | Shared network, IPC, storage, sidecar pattern    |
+| 110 | What is gVisor? How does it provide additional isolation?     | Userspace kernel, seccomp, ptrace, Sentry        |
+
+What is the difference between authentication and authorization?	Identity vs permissions, AAA
+152	What are access control lists (ACLs)? Compare with capabilities.	Discretionary vs capability-based, POSIX ACLs
+153	What is the principle of least privilege?	
+What are Linux capabilities? Why replace setuid?
+| #   | Question                                                       | Key Concepts to Cover                                              |
+| --- | -------------------------------------------------------------- | ------------------------------------------------------------------ |
+| 171 | What is a system call? How does it work?                       | User to kernel transition, `syscall` instruction, `sys_call_table` |
+| 172 | What is the difference between `fork()`, `vfork()`, `clone()`? | Copy-on-write, shared memory, flags, threads                       |
+| 173 | What is `execve()`? What happens to file descriptors?          | `FD_CLOEXEC`, interpreter scripts, environment                     |
+| 174 | How does `malloc()` work internally?                           | Arena, binning, `sbrk()`, `mmap()`, ptmalloc, jemalloc             |
+| 175 | What is a memory leak? How to detect it?                       | Valgrind, ASan, heap profiling, reference counting                 |
+| 176 | What is a segmentation fault? Common causes?                   | Null pointer, stack overflow, buffer overflow, use-after-free      |
+| 177 | What is a deadlock? How to debug it?                           | `pstack`, `strace`, lock ordering, graph cycle detection           |
+| 178 | What is `strace`? How does it work?                            | `ptrace`, system call tracing, overhead                            |
+| 179 | What is `gdb`? How to debug a core dump?                       | Backtrace, breakpoints, watchpoints, reverse debugging             |
+| 180 | What is `tcpdump`? How to filter packets?                      | BPF syntax, capture filters, display filters                       |
+
+
+
+
+IIT-SPECIFIC QUESTIONS (From Actual Interviews)
+| #   | Question                                                                                                                         | Source |
+| --- | -------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| 201 | **Who invokes a scheduler?** Deep dive into scheduler invocation mechanisms.                                                     |        |
+| 202 | **Does OS need support for sync for itself?** Internal OS synchronization needs.                                                 |        |
+| 203 | **What is paging?** Basic to advanced paging concepts.                                                                           |        |
+| 204 | **Array address is?** Virtual address translation.                                                                               |        |
+| 205 | **Find page id from the above address?** Page number extraction.                                                                 |        |
+| 206 | **Where is page table stored and how to access it?** Page table location and access mechanisms.                                  |        |
+| 207 | **What is the use of PT if we are accessing memory so many times?** Page table optimization justification.                       |        |
+| 208 | **Discussion on TLB and physical caches?** TLB hierarchy and cache interactions.                                                 |        |
+| 209 | **PIVT/VIPT - which is suitable?** Cache indexing techniques.                                                                    |        |
+| 210 | **Adding TLB's to pipeline, what is effect?** i-cache & d-cache implications.                                                    |        |
+| 211 | **Suppose after adding TLB no effect in perf only number of stage increases? Why we need it then?** TLB justification questions. |        |
+| 212 | Effect of branch instructions and discussion on branch predictors.                                                               |        |
+| 213 | Infinite resources, discuss the scenario of how will u execute n instructions?                                                   |        |
+| 214 | Time complexity of above, ignore loops/function calls.                                                                           |        |
+| 215 | Can we run all n parallel? Data hazards discussion.                                                                              |        |
+| 216 | Few questions to identify types of languages (rapid fire).                                                                       |        |
+| 217 | Why we use stack, how will you store function calls?                                                                             |        |
+| 218 | Is return address saved on PC?                                                                                                   |        |
+| 219 | Any issue we can have with stack?                                                                                                |        |
+| 220 | You have 3 files .o, .h and shared library how will these be compiled?                                                           |        |
+| 221 | Static/Dynamic linking and loader.                                                                                               |        |
+| 222 | Where will preprocessor be used, and how will macros be handled?                                                                 |        |
+| 223 | OS Scheduling: FCFS, SJF, Round Robin - how to determine time quantum?                                                           |        |
+| 224 | SJF: How to predict execution time beforehand?                                                                                   |        |
+| 225 | Virtual Memory: Demand paging, address translation (virtual to physical).                                                        |        |
+| 226 | Memory Management: How to search pages in secondary memory?                                                                      |        |
+| 227 | Data Structures: Ternary trees, BST properties, tree node counting.                                                              |        |
+| 228 | Algorithms: Optimization problems (e.g., max product array distribution).                                                        |        |
+| 229 | Mathematical Foundations: Group theory (finite/infinite groups, multiplication modulo).                                          |        |
+
+IIT Madras Specific
+| #   | Question                                                                                              | Source |
+| --- | ----------------------------------------------------------------------------------------------------- | ------ |
+| 230 | Write a function in C that takes two matrices as input and returns the matrix multiplication of them. |        |
+| 231 | Make sure matrices are generic using malloc and double pointers.                                      |        |
+| 232 | Why not use matrix element-wise multiplication instead of complex matrix multiplication algorithm?    |        |
+| 233 | Does eigenvalue exist for every rectangular matrix?                                                   |        |
+| 234 | Does it exist for all square matrices?                                                                |        |
+| 235 | What is diagonalization of a matrix?                                                                  |        |
+| 236 | In-depth cache concepts (everything about cache).                                                     |        |
+| 237 | Pipelining concepts.                                                                                  |        |
+| 238 | Process management in OS.                                                                             |        |
+| 239 | Snakes and Ladders problem modeled as Dijkstra's shortest path algorithm.                             |        |
+| 240 | Binary search optimization and "Angry Cows" problem.                                                  |        |
+| 241 | Linked list insertion and deletion operations.                                                        |        |
+| 242 | Expectation of local minima in an array.                                                              |        |
+| 243 | Finding all local minima in a complete binary tree.                                                   |        |
+| 244 | Binary search tree properties (can any 5 random integers fit a given BST structure?).                 |        |
+| 245 | Prim's algorithm and Bellman-Ford algorithm.                                                          |        |
+| 246 | Matrix multiplication complexity - why is it complex compared to addition?                            |        |
+| 247 | Eigenvalues and eigenvectors (constructing matrices with same eigenvectors).                          |        |
+| 248 | Upper triangular matrices and eigenvalue calculation.                                                 |        |
+| 249 | Analytical proofs in combinatorics.                                                                   |        |
+| 250 | Functions and relations.                                                                              |        |
+PROGRAMMING & CODING QUESTIONS
+| #   | Question                                                           | Difficulty | Topics                                     |
+| --- | ------------------------------------------------------------------ | ---------- | ------------------------------------------ |
+| 251 | Implement a thread-safe bounded blocking queue.                    | Medium     | Mutex, condition variable, circular buffer |
+| 252 | Implement a reader-writer lock with writer preference.             | Hard       | Semaphore, counter, starvation-free        |
+| 253 | Implement `malloc()` and `free()` with coalescing.                 | Hard       | Heap management, boundary tags, binning    |
+| 254 | Implement a simple page fault handler.                             | Hard       | Page table walk, frame allocation, LRU     |
+| 255 | Implement a basic shell with piping and redirection.               | Medium     | `fork()`, `exec()`, `pipe()`, `dup2()`     |
+| 256 | Implement a simple LRU cache with O(1) operations.                 | Medium     | Hash map + doubly linked list              |
+| 257 | Implement a memory allocator using the buddy system.               | Hard       | Splitting, coalescing, bitmap/tree         |
+| 258 | Implement a simple TCP server handling 10k concurrent connections. | Hard       | `epoll`, non-blocking I/O, event loop      |
+| 259 | Implement a file copy program with `sendfile()` zero-copy.         | Medium     | `sendfile()`, `splice()`, performance      |
+| 260 | Implement a simple container runtime (namespaces + cgroups).       | Very Hard  | `clone()`, `unshare()`, cgroupfs           |
+
+ DESIGN & SCENARIO-BASED QUESTIONS
+| #   | Question                                                 | Scenario                                   |
+| --- | -------------------------------------------------------- | ------------------------------------------ |
+| 261 | Design a key-value store like Redis.                     | In-memory, persistence, replication        |
+| 262 | Design a distributed file system like HDFS.              | GFS architecture, replication, consistency |
+| 263 | Design a load balancer like Nginx/HAProxy.               | Health checks, algorithms, sticky sessions |
+| 264 | Design a message queue like Kafka.                       | Log-based, partitions, consumer groups     |
+| 265 | Design a container orchestrator like Kubernetes.         | Scheduling, networking, storage            |
+| 266 | Design a monitoring system like Prometheus.              | Metrics collection, storage, alerting      |
+| 267 | Design a service mesh like Istio.                        | Sidecar proxy, mTLS, traffic management    |
+| 268 | Design a distributed cache like Memcached/Redis Cluster. | Sharding, replication, eviction            |
+| 269 | Design a rate limiter.                                   | Token bucket, sliding window, distributed  |
+| 270 | Design a unique ID generator like Snowflake.             | Timestamp, machine ID, sequence, sortable  |
+
+
+
